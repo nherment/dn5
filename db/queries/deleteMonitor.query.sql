@@ -1,0 +1,1 @@
+DELETE FROM monitors WHERE id = $1
