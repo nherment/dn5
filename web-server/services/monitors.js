@@ -11,6 +11,7 @@ function searchMonitors(searchTerm, limit, callback) {
     callback(err, monitors)
   })
 }
+
 function createMonitor(monitor, callback) {
 
   logger.info('createMonitor', monitor)
@@ -26,6 +27,7 @@ function createMonitor(monitor, callback) {
     callback(err, createdMonitor)
   })
 }
+
 function updateMonitor(monitor, callback) {
 
   logger.info('updateMonitor', monitor)
@@ -43,6 +45,7 @@ function updateMonitor(monitor, callback) {
     callback(err, updatedMonitor)
   })
 }
+
 function deleteMonitor(monitor, callback) {
 
   logger.info('deleteMonitor', monitor)
@@ -53,6 +56,7 @@ function deleteMonitor(monitor, callback) {
     callback(err)
   })
 }
+
 function fetchMonitorsStatuses(fetchPrivateMonitors, callback) {
 
   db.fetchMonitorsStatuses(fetchPrivateMonitors, (err, statuses) => {
@@ -63,11 +67,20 @@ function fetchMonitorsStatuses(fetchPrivateMonitors, callback) {
   })
 }
 
+function fetchMonitorDetailedStatus(monitorId, callback) {
+  db.fetchMonitorDetailedStatus(monitorId, (err, results) => {
+    if(err) {
+      logger.error(err)
+    }
+    callback(err, results ? results[0] : null)
+  })
+}
 
 module.exports = {
   searchMonitors,
   createMonitor,
   updateMonitor,
   deleteMonitor,
-  fetchMonitorsStatuses
+  fetchMonitorsStatuses,
+  fetchMonitorDetailedStatus
 }

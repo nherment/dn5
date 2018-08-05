@@ -1,23 +1,7 @@
 
 import React from 'react'
+import {operational, unstable, incident, colorFromStatus} from '../colors'
 
-
-const COLOR_OPERATIONAL = '#18b73a'
-const COLOR_UNSTABLE = '#ec9c25'
-const COLOR_INCIDENT = '#f1244c'
-
-const colorFromStatus = (status) => {
-  if(status === 'unstable') {
-    return COLOR_UNSTABLE
-  } else if(status === 'incident') {
-    return COLOR_INCIDENT
-  } else {
-    return COLOR_OPERATIONAL
-  }
-
-}
-
-export { colorFromStatus };
 
 export const SystemIcon = (props) => {
   let color = colorFromStatus(props.status)
@@ -127,7 +111,7 @@ export const ExclamationMark = (props) => {
 export const CheckMark = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 286.054 286.054" >
     <g>
-      <path style={{fill: COLOR_OPERATIONAL}} d="M143.031,0C64.027,0,0.004,64.04,0.004,143.027c0,78.996,64.031,143.027,143.027,143.027
+      <path style={{fill: operational}} d="M143.031,0C64.027,0,0.004,64.04,0.004,143.027c0,78.996,64.031,143.027,143.027,143.027
         c78.987,0,143.018-64.031,143.018-143.027C286.049,64.049,222.018,0,143.031,0z M143.031,259.236
         c-64.183,0-116.209-52.026-116.209-116.209S78.857,26.818,143.031,26.818s116.2,52.026,116.2,116.209
         S207.206,259.236,143.031,259.236z M199.241,82.187c-6.079-3.629-13.847-1.475-17.342,4.827l-47.959,86.147l-26.71-32.512
@@ -140,7 +124,7 @@ export const CheckMark = (props) => (
 export const CancelMark = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 286.054 286.054">
     <g>
-      <path style={{fill: COLOR_INCIDENT}} d="M168.352,142.924l25.28-25.28c3.495-3.504,3.495-9.154,0-12.64l-12.64-12.649
+      <path style={{fill: incident}} d="M168.352,142.924l25.28-25.28c3.495-3.504,3.495-9.154,0-12.64l-12.64-12.649
         c-3.495-3.486-9.145-3.495-12.64,0l-25.289,25.289l-25.271-25.271c-3.504-3.504-9.163-3.504-12.658-0.018l-12.64,12.649
         c-3.495,3.486-3.486,9.154,0.018,12.649l25.271,25.271L92.556,168.15c-3.495,3.495-3.495,9.145,0,12.64l12.64,12.649
         c3.495,3.486,9.145,3.495,12.64,0l25.226-25.226l25.405,25.414c3.504,3.504,9.163,3.504,12.658,0.009l12.64-12.64

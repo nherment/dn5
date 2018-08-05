@@ -17,7 +17,7 @@ WITH args AS (
 ), new_incident AS (
   INSERT INTO incidents (monitor_id, title, description, count_as_downtime)
   (
-    SELECT monitor_id, 'Anomaly', error_message, TRUE
+    SELECT monitor_id, 'System created incident', '', TRUE
     FROM args 
     WHERE args.error_message IS NOT NULL
       AND NOT EXISTS (
@@ -28,9 +28,11 @@ WITH args AS (
 ), new_incident_event AS (
   INSERT INTO incident_events (incident_id, title, description)
   (
-    SELECT id, title, description FROM new_incident
+    SELECT i.id, '', args.error_message 
+    FROM new_incident AS i
+    INNER JOIN args ON 1=1
     UNION
-    SELECT incident.monitor_id, 'Anomaly', args.error_message
+    SELECT incident.monitor_id, '', args.error_message
     FROM existing_active_incident AS incident
     INNER JOIN args AS args ON 1=1
     WHERE args.error_message IS NOT NULL

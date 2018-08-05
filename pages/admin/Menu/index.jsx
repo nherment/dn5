@@ -61,7 +61,7 @@ class Menu extends React.Component {
     return (
       <MenuContainer>
         <LogoContainer>
-          Auth-14
+          DN5
         </LogoContainer>
         <MenuItem isActive={this.state.activeMenuItem === 'monitors'} onClick={() => {this.selectMenuItem('monitors')}}>
           <FontAwesomeIcon icon={faAssistiveListeningSystems} color="#EAEAEA" size="2x"/>

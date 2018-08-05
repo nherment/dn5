@@ -109,8 +109,6 @@ class Items extends React.Component {
         return response.json()
       }).then(items => {
         this.setState({items})
-      }).catch(err => {
-        console.error(err)
       })
   }
 
@@ -124,9 +122,7 @@ class Items extends React.Component {
         return response.json()
       }).then(items => {
         this.setState({items})
-      }).catch(err => {
-        console.error(err)
-      }) 
+      })
   }
 
   selectItem = (item) => {

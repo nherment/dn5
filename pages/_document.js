@@ -10,8 +10,9 @@ export default class MyDocument extends Document {
     return (
       <html>
         <Head>
-          <title>Auth 14</title>
+          <title>DN5</title>
           <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet"/>
+          <link rel="stylesheet" href="/_next/static/style.css" />
           <style>{`
             html, body { 
               margin: 0;

@@ -3,7 +3,13 @@ const next = require('next')
 
 const port = parseInt(process.env.PORT, 10) || 3000
 const conf = require('../common/conf')
-const app = next({ dev: !conf.isProduction })
+
+const withCSS = require('@zeit/next-css')
+
+const app = next(withCSS({
+  dev: !conf.isProduction,
+  cssModules: true
+}))
 const handle = app.getRequestHandler()
 const migration = require('../common/migration')
 const api = require('./api.js')

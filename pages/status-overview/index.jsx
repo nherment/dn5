@@ -3,14 +3,17 @@
 import React from 'react'
 import styled from 'styled-components'
 import moment from 'moment'
+import MonitorIncidentReport from './MonitorIncidentReport'
 
 import {
   SystemIcon,
   ExclamationMark,
   CancelMark,
-  CheckMark,
-  colorFromStatus
+  CheckMark
 } from './icons'
+
+import { colorFromStatus } from '../colors'
+import { StatusLevels, deserializeMonitor, truncateDecimals } from './util'
 
 const Container = styled.div`
   width: 100%;
@@ -21,6 +24,7 @@ const Overview = styled.div`
   max-width: 500px;
   margin: 40px auto 50px auto;
 `
+
 const OverviewPrimaryContent = styled.div`
   width: 100%;
   text-align: center;
@@ -31,6 +35,7 @@ const OverviewPrimaryContent = styled.div`
     margin-bottom: 20px;
   }
 `
+
 const OverviewSecondaryContent = styled.div`
   width: 100%;
   text-align: center;
@@ -50,16 +55,40 @@ const MonitorsOverview = styled.div`
   justify-content: space-between;
   align-content: flex-start;
 `
-const Monitor = styled.div`
-  margin: 5px;
-  width: 340px;
-  padding: 20px;
-  border: 1px solid #CCCCCC;
-  border-radius: 4px;
 
+const MonitorOverview = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  height: 100%;
+`
+const MonitorDetails = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+const Monitor = styled.div`
+  margin: 5px;
+  width: 340px;
+  border: 1px solid #CCCCCC;
+  border-radius: 4px;
+  position: relative;
+  padding: 20px;
+  height: 40px;
+  cursor: pointer;
+
+  & > ${MonitorDetails} {
+    display: none;
+  }
+  &:hover > ${MonitorDetails} {
+    display: block;
+  }
+
+  &:hover > ${MonitorOverview} {
+    display: none;
+  }
 `
 const MonitorName = styled.div`
   font-size: 20px;
@@ -103,53 +132,17 @@ const Header = styled.header`
   justify-content: flex-end;
   align-items: center;
 `
-const StatusLevels = {
-  operational: {
-    level: 0,
-    name: 'operational',
-    label: 'All systems fully operational'
-  }, 
-  unstable: {
-    level: 1,
-    name: 'unstable',
-    label: 'Some instability has been noticed'
-  }, 
-  incident: {
-    level: 2,
-    name: 'incident',
-    label: 'Incident detected'
-  }
-}
-
-const UNSTABLE_TO_INCIDENT_DURATION_THRESHOLD = 5 * 60 * 1000
-
-const truncateDecimals = (number, digits) => {
-  var multiplier = Math.pow(10, digits),
-      adjustedNum = number * multiplier,
-      truncatedNum = Math[adjustedNum < 0 ? 'ceil' : 'floor'](adjustedNum);
-  return truncatedNum / multiplier;
-};
-
-function incidentDurationMS(incident) {
-  return moment().diff(incident.createdDate)
-}
-
-function calculateMonitorStatusLevel(monitor) {
-  if(monitor.activeIncident && incidentDurationMS(monitor.activeIncident) > UNSTABLE_TO_INCIDENT_DURATION_THRESHOLD) {
-    return StatusLevels.incident
-  } else if(monitor.activeIncident) {
-    return StatusLevels.unstable
-  } else {
-    return StatusLevels.operational
-  }
-}
 
 class StatusOverview extends React.Component {
 
   state = {
     status: StatusLevels.operational,
     lastUpdatedDate: moment(),
-    monitors: this.props.monitors || []
+    monitors: this.props.monitors || [],
+    selectedMonitor: null
+  }
+  refreshUpdatedDateLabel = () => {
+    this.setState({lastUpdatedDateLabel: this.state.lastUpdatedDate.fromNow()})
   }
 
   refreshMonitors = () => {
@@ -161,7 +154,8 @@ class StatusOverview extends React.Component {
         let highestStatus = StatusLevels.operational;
 
         monitors.forEach(monitor => {
-          monitor.status = calculateMonitorStatusLevel(monitor)
+          deserializeMonitor(monitor)
+
           if(monitor.status.level > highestStatus.level) {
             highestStatus = monitor.status
           }
@@ -169,9 +163,23 @@ class StatusOverview extends React.Component {
 
         this.setState({
           status: highestStatus,
-          monitors: monitors
+          monitors: monitors,
+          lastUpdatedDate: moment(),
+          lastUpdatedDateLabel: moment().fromNow()
         })
       })
+    this.refreshMonitor()
+  }
+  refreshMonitor = () => {
+    if(this.state.selectedMonitor && this.state.selectedMonitor.id) {
+      fetch(`/api/monitor/${this.state.selectedMonitor.id}`, {credentials: 'include'})
+        .then((response) => {
+          return response.json()
+        }).then(selectedMonitor => {
+          deserializeMonitor(selectedMonitor)
+          this.setState({selectedMonitor})
+        })
+    }
   }
 
   componentDidMount = () => {
@@ -179,27 +187,45 @@ class StatusOverview extends React.Component {
     this.interval = setInterval(() => {
       this.refreshMonitors()
     }, 5000)
+    this.intervalLabel = setInterval(() => {
+      this.refreshUpdatedDateLabel()
+    }, 5000)
   }
   componentWillUnmount = () => {
     clearInterval(this.interval)
+    clearInterval(this.intervalLabel)
   }
-  renderMonitor(monitor) {
+
+  viewMonitorDetails = (monitor) => {
+    this.setState({selectedMonitor: monitor}, () => {
+      this.refreshMonitor()
+    })
+  }
+  closeMonitorDetails = () => {
+    this.setState({selectedMonitor: null})
+  }
+  renderMonitor = (monitor) => {
     return (
-      <Monitor key={monitor.id}>
-        <MonitorName>
-          {monitor.name}
-          <MonitorUptime>{truncateDecimals(monitor.rollingMonthUptime, 2)}% uptime for the last 30 days</MonitorUptime>
-        </MonitorName>
-        <MonitorStatus>
-          <MonitorStatusIcon>
-            {monitor.status.name === 'operational' && <CheckMark />}
-            {monitor.status.name === 'unstable' && <ExclamationMark status="unstable"/>}
-            {monitor.status.name === 'incident' && <CancelMark status="incident" />}
-          </MonitorStatusIcon>
-          <MonitorStatusLabel style={{color: colorFromStatus(monitor.status.name)}}>
-            {monitor.status.name}
-          </MonitorStatusLabel>
-        </MonitorStatus>
+      <Monitor key={monitor.id} onClick={() => this.viewMonitorDetails(monitor)}>
+        <MonitorOverview>
+          <MonitorName>
+            {monitor.name}
+            <MonitorUptime>{truncateDecimals(monitor.rollingMonthUptime, 2)}% uptime for the last 30 days</MonitorUptime>
+          </MonitorName>
+          <MonitorStatus>
+            <MonitorStatusIcon>
+              {monitor.status.name === 'operational' && <CheckMark />}
+              {monitor.status.name === 'unstable' && <ExclamationMark status="unstable"/>}
+              {monitor.status.name === 'incident' && <CancelMark status="incident" />}
+            </MonitorStatusIcon>
+            <MonitorStatusLabel style={{color: colorFromStatus(monitor.status.name)}}>
+              {monitor.status.name}
+            </MonitorStatusLabel>
+          </MonitorStatus>
+        </MonitorOverview>
+        <MonitorDetails>
+          <div>Click to see detailed information</div>
+        </MonitorDetails>
       </Monitor>
     )
   }
@@ -208,21 +234,23 @@ class StatusOverview extends React.Component {
     return (
       <Container>
         <Header>
-          <a href="/auth/login">Login</a>
+          <a href="/auth/login">login</a>
         </Header>
         <Overview>
           <OverviewPrimaryContent>
             <SystemIcon width="128" height="128" status={this.state.status.name}/>
             <div>{this.state.status.label}</div>
           </OverviewPrimaryContent>
-          <OverviewSecondaryContent>Last updated: {this.state.lastUpdatedDate.fromNow()}</OverviewSecondaryContent>
+          <OverviewSecondaryContent>Last updated: {this.state.lastUpdatedDateLabel}</OverviewSecondaryContent>
         </Overview>
         <MonitorsOverview>
-          {this.state.monitors.map(this.renderMonitor)}
+          {!this.state.selectedMonitor && this.state.monitors.map(this.renderMonitor)}
+          {this.state.selectedMonitor && <MonitorIncidentReport monitor={this.state.selectedMonitor} onClose={this.closeMonitorDetails}/>}
           <Footer>
             If you are experiencing an issue, please contact <a href="mailto:support@portchain.com">support</a>.
           </Footer>
         </MonitorsOverview>
+
       </Container>
     )
   }
