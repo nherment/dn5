@@ -10,8 +10,8 @@ function scheduleNextRefresh() {
 }
 
 function refreshMonitors() {
-  logger.info('Refreshing active monitors')
-  db.fetchMonitors((err, monitors) => {
+  logger.info(`Refreshing ${runningMonitors.length} active monitors`)
+  db.fetchActiveMonitors((err, monitors) => {
     if(err) {
       logger.error(err)
     } else {

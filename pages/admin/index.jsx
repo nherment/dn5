@@ -31,13 +31,13 @@ class Main extends React.Component {
       <Container>
         <Menu selectMenuItem={this.selectMenuItem}/>
 
-        {this.state.activeMenuItem === 'monitors' && <Monitors 
-            activeApp={this.state.selectedItem} 
-            selectApp={this.selectItem}/>}
+        {this.state.activeMenuItem === 'monitors' && <Monitors itemLabel="Monitor"
+            activeItem={this.state.selectedItem} 
+            selectItem={this.selectItem}/>}
         {this.state.activeMenuItem === 'monitors' && 
           <MonitorDetails
-            app={this.state.selectedItem}
-            updateApp={this.updateItem}/>}
+            monitor={this.state.selectedItem}
+            updateMonitor={this.updateItem}/>}
         
       </Container>
     )

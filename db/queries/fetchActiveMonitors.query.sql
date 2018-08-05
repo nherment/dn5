@@ -1,4 +1,3 @@
-
 SELECT 
   id, 
   name,
@@ -10,4 +9,5 @@ SELECT
   is_active,
   is_public
 FROM monitors
-ORDER BY name ASC;
+WHERE is_active = TRUE
+ORDER BY name ASC

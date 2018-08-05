@@ -6,12 +6,13 @@ CREATE TABLE monitors (
   url CHARACTER VARYING NOT NULL,
   expected_status_code INTEGER NOT NULL,
   validation_logic TEXT,
-  is_public BOOLEAN DEFAULT FALSE,
+  is_public BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_date TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
-INSERT INTO monitors (name, frequency_seconds, url, expected_status_code)
-VALUES  ('Website', 60, 'https://www.portchain.com/', 200);
+INSERT INTO monitors (name, is_public, frequency_seconds, url, expected_status_code)
+VALUES  ('Website', TRUE, 60, 'https://www.portchain.com/', 200);
 
 CREATE TABLE monitor_status_checks (
   monitor_id INTEGER UNIQUE NOT NULL REFERENCES monitors(id) ON DELETE CASCADE,
@@ -26,12 +27,15 @@ CREATE TABLE incidents (
   description TEXT NOT NULL,
   created_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   acknowledged_date TIMESTAMP WITH TIME ZONE,
-  closed_date TIMESTAMP WITH TIME ZONE
+  closed_date TIMESTAMP WITH TIME ZONE,
+  count_as_downtime BOOLEAN NOT NULL DEFAULT FALSE
 );
 
+CREATE UNIQUE INDEX incidents_open_unique_idx ON incidents (monitor_id) WHERE closed_date IS NULL;
 CREATE INDEX incidents_monitor_id_idx ON incidents (monitor_id);
 CREATE INDEX incidents_created_date_idx ON incidents (created_date);
 CREATE INDEX incidents_monitor_id_created_date_idx ON incidents (monitor_id, created_date);
+CREATE INDEX incidents_monitor_id_closed_date_idx ON incidents (monitor_id, closed_date);
 
 CREATE TABLE incident_events (
   id SERIAL PRIMARY KEY NOT NULL,

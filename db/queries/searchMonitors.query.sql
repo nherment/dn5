@@ -7,7 +7,9 @@ SELECT
   url,
   expected_status_code,
   created_date,
-  validation_logic
+  validation_logic,
+  is_active,
+  is_public
 FROM monitors
 ORDER BY (
   similarity(name, $1::TEXT) +

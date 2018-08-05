@@ -11,12 +11,13 @@ WITH args AS (
   INNER JOIN args AS args ON args.monitor_id = m.id
   LEFT JOIN incident_events AS ie ON ie.incident_id = i.id
   WHERE i.closed_date IS NULL
+    AND i.count_as_downtime = TRUE
   ORDER BY ie.created_date DESC
   LIMIT 1
 ), new_incident AS (
-  INSERT INTO incidents (monitor_id, title, description)
+  INSERT INTO incidents (monitor_id, title, description, count_as_downtime)
   (
-    SELECT monitor_id, 'Anomaly', error_message
+    SELECT monitor_id, 'Anomaly', error_message, TRUE
     FROM args 
     WHERE args.error_message IS NOT NULL
       AND NOT EXISTS (

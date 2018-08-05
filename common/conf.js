@@ -7,7 +7,7 @@ module.exports = {
   },
   db: {
     migrationDirectory: path.join(__dirname, '..', 'db', 'schema'),
-    schemaTable: 'crow_schema_version',
+    schemaTable: 'dn5_schema_version',
     driver: 'pg',
     host: process.env.DB_HOST || '127.0.0.1',
     port: process.env.DB_PORT || 5432,

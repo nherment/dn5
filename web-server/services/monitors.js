@@ -7,16 +7,67 @@ function searchMonitors(searchTerm, limit, callback) {
   db.searchMonitors(searchTerm || '', limit, (err, monitors) => {
     if(err) {
       logger.error(err)
-    } else {
-      logger.info('searchMonitors result',
-      searchTerm,
-      limit,
-      monitors ? monitors.length : 0)
     }
     callback(err, monitors)
   })
 }
+function createMonitor(monitor, callback) {
+
+  logger.info('createMonitor', monitor)
+  db.createMonitor(monitor.name, 
+                   monitor.url,
+                   monitor.expectedStatusCode,
+                   monitor.frequencySeconds,
+                   monitor.validationLogic, 
+                   (err, createdMonitor) => {
+    if(err) {
+      logger.error(err)
+    }
+    callback(err, createdMonitor)
+  })
+}
+function updateMonitor(monitor, callback) {
+
+  logger.info('updateMonitor', monitor)
+  db.updateMonitor(monitor.id, 
+                   monitor.name,
+                   monitor.url,
+                   monitor.expectedStatusCode,
+                   monitor.frequencySeconds,
+                   monitor.validationLogic,
+                   monitor.isPublic,
+                   monitor.isActive, (err, updatedMonitor) => {
+    if(err) {
+      logger.error(err)
+    }
+    callback(err, updatedMonitor)
+  })
+}
+function deleteMonitor(monitor, callback) {
+
+  logger.info('deleteMonitor', monitor)
+  db.deleteMonitor(monitor.id, (err) => {
+    if(err) {
+      logger.error(err)
+    }
+    callback(err)
+  })
+}
+function fetchMonitorsStatuses(fetchPrivateMonitors, callback) {
+
+  db.fetchMonitorsStatuses(fetchPrivateMonitors, (err, statuses) => {
+    if(err) {
+      logger.error(err)
+    }
+    callback(err, statuses)
+  })
+}
+
 
 module.exports = {
-  searchMonitors
+  searchMonitors,
+  createMonitor,
+  updateMonitor,
+  deleteMonitor,
+  fetchMonitorsStatuses
 }

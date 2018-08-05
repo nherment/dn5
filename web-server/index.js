@@ -7,7 +7,9 @@ const app = next({ dev: !conf.isProduction })
 const handle = app.getRequestHandler()
 const migration = require('../common/migration')
 const api = require('./api.js')
+const monitors = require('./services/monitors.js')
 
+const bodyParser = require('body-parser')
 
 app.prepare()
   .then(migration)
@@ -15,10 +17,7 @@ app.prepare()
     console.log('starting up server')
     const server = express()
 
-    // server.get('/', (req, res) => {
-    //   return app.render(req, res, '/', req.query)
-    // })
-
+    server.use(bodyParser.json())
     server.use('/api', api())
     
     server.get('*', (req, res) => {

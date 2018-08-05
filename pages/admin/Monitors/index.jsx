@@ -149,7 +149,7 @@ class Items extends React.Component {
     }
     return (
       <ItemItem key={item.id} isSelected={isSelected} onClick={() => this.selectItem(item)}>
-        <ItemFullName title={item.active ? '' : `${this.props.itemLabel} is disabled`} isActive={item.active} isSelected={isSelected}>{item.name}</ItemFullName>
+        <ItemFullName title={item.isActive ? '' : `${this.props.itemLabel} is disabled`} isActive={item.isActive} isSelected={isSelected}>{item.name}</ItemFullName>
         <ItemEmail isSelected={isSelected}>{item.url}</ItemEmail>
         <ItemCompany isSelected={isSelected}>{item.company}</ItemCompany>
       </ItemItem>

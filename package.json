@@ -32,6 +32,7 @@
     "@fortawesome/react-fontawesome": "0.1.0",
     "auth-14": "0.2.3",
     "babel-plugin-styled-components": "1.5.1",
+    "body-parser": "1.18.3",
     "express": "4.16.3",
     "logacious": "0.3.0",
     "moment": "2.22.2",

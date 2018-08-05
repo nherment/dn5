@@ -10,14 +10,15 @@ const Container = styled.div`
 `
 
 const InputGroup = styled.div`
+  margin-top: 16px;
   display: flex;
   flex-flow: row nowrap;
-  align-items: flex-end;
+  align-items: flex-start;
   width: 100%;
 `
 const Label = styled.div`
   vertical-align: bottom;
-  width: 100px;
+  width: 200px;
   text-align: right;
   padding-right: 16px;
   color: ${colors.text.dark.secondary};
@@ -32,7 +33,7 @@ const Form = styled.form`
 `
 
 const InputsContainer = styled.div`
-  min-width: 500px;
+  min-width: 600px;
 `
 
 
@@ -41,9 +42,17 @@ const Input = styled.input`
   border: none;
   border-bottom: 2px solid ${colors.dark};
   padding-bottom: 2px;
-  margin-top: 16px;
   line-height; 14px;
   font-size: 14px;
+  background-color: transparent;
+  min-width: 200px;
+`
+const TextArea = styled.textarea`
+  min-width: 400px;
+  min-height: 400px;
+
+  border: 1px solid #BBBBBB;
+  border-bottom: 2px solid ${colors.dark};
   background-color: transparent;
 `
 const ButtonBox = styled.div`
@@ -75,7 +84,7 @@ class MonitorDetails extends React.Component {
     rotateSecretStateActive: false
   }
 
-  handleUserFieldChange = (field) => {
+  handleFieldChange = (field) => {
     return (event) => {
       const monitor = this.state.monitor
       monitor[field] = event.target.value
@@ -83,23 +92,50 @@ class MonitorDetails extends React.Component {
     }
   }
 
+  enable = (evt) => {
+    evt.preventDefault()
+    const monitor = this.state.monitor
+    monitor.isActive = true
+    this.setState({monitor}, () => {
+      this.saveMonitor()
+    })
+  }
+
+  disable = (evt) => {
+    evt.preventDefault()
+    const monitor = this.state.monitor
+    monitor.isActive = false
+    this.setState({monitor}, () => {
+      this.saveMonitor()
+    })
+  }
+
+  makePrivate = (evt) => {
+    evt.preventDefault()
+    const monitor = this.state.monitor
+    monitor.isPublic = false
+    this.setState({monitor}, () => {
+      this.saveMonitor()
+    })
+  }
+
+  makePublic = (evt) => {
+    evt.preventDefault()
+    const monitor = this.state.monitor
+    monitor.isPublic = true
+    this.setState({monitor}, () => {
+      this.saveMonitor()
+    })
+  }
+
   componentWillReceiveProps = (props) => {
-    if(props.monitor && props.monitor.id) {
-      fetch(`/api/monitor/${props.monitor.id}`, {credentials: 'include'})
-        .then((response) => {
-          return response.json()
-        }).then(monitor => {
-          this.setState({monitor: monitor})
-        }).catch(err => {
-          console.error(err)
-        })
-    } else {
-      this.setState({monitor: {...props.monitor}})
-    }
+    this.setState({monitor: {...props.monitor}})
   }
 
   deleteMonitor = (evt) => {
-    evt.preventDefault()
+    if(evt) {
+      evt.preventDefault()
+    }
     const monitor = {...this.state.monitor}
     fetch(`/api/monitor/${monitor.id}`, {
       credentials: 'include',
@@ -120,7 +156,9 @@ class MonitorDetails extends React.Component {
   }
 
   saveMonitor = (evt) => {
-    evt.preventDefault()
+    if(evt) {
+      evt.preventDefault()
+    }
     const monitor = {...this.state.monitor}
     fetch('/api/monitor', {
       credentials: 'include',
@@ -129,18 +167,14 @@ class MonitorDetails extends React.Component {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        id: monitor.id,
-        name: monitor.name,
-        url: monitor.url
-      })
+      body: JSON.stringify(monitor)
     })
     .then((response) => {
       if(response.status === 200) {
         if(!monitor.id) {
           return response.json()
         } else {
-          return Promise.resolve(app)
+          return Promise.resolve(monitor)
         }
       } else {
         return Promise.reject(new Error('Http error ' + response.status))
@@ -158,20 +192,6 @@ class MonitorDetails extends React.Component {
       <Container>
         <Form>
           <InputsContainer>
-            <InputGroup>
-              <Label>Monitor name:</Label>
-              <Input 
-                value={this.state.monitor.name || ''} 
-                onChange={this.handleUserFieldChange('name')}
-                />
-            </InputGroup>
-            <InputGroup>
-              <Label>URL:</Label>
-              <Input 
-                value={this.state.monitor.url || ''} 
-                onChange={this.handleUserFieldChange('url')}
-                />
-            </InputGroup>
             {this.state.monitor.id && <InputGroup>
               <Label>ID:</Label>
               <Input 
@@ -179,11 +199,56 @@ class MonitorDetails extends React.Component {
                 readOnly={true}
                 />
             </InputGroup>}
+            <InputGroup>
+              <Label>Monitor name:</Label>
+              <Input 
+                value={this.state.monitor.name || ''} 
+                onChange={this.handleFieldChange('name')}
+                />
+            </InputGroup>
+            <InputGroup>
+              <Label>URL:</Label>
+              <Input 
+                value={this.state.monitor.url || ''} 
+                onChange={this.handleFieldChange('url')}
+                />
+            </InputGroup>
+            <InputGroup>
+              <Label>Expected status:</Label>
+              <Input 
+                value={this.state.monitor.expectedStatusCode || ''} 
+                onChange={this.handleFieldChange('expectedStatusCode')}
+                />
+            </InputGroup>
+            <InputGroup>
+              <Label>Frequency (s):</Label>
+              <Input 
+                value={this.state.monitor.frequencySeconds || ''} 
+                onChange={this.handleFieldChange('frequencySeconds')}
+                />
+            </InputGroup>
+            <InputGroup>
+              <Label>Logic:</Label>
+              <TextArea 
+                value={this.state.monitor.validationLogic || ''} 
+                placeholder="return true || 'Error message'"
+                onChange={this.handleFieldChange('validationLogic')}
+                ></TextArea>
+            </InputGroup>
           </InputsContainer>
           {this.state.monitor.id && <ButtonBox>
             <PrimaryButton onClick={this.saveMonitor}>Save</PrimaryButton>
             <SecondaryButton onClick={this.deleteMonitor}>Delete</SecondaryButton>
-            <SecondaryButton onClick={this.rotateSecret}>Rotate secret</SecondaryButton>
+          {this.state.monitor.isActive ?
+            <SecondaryButton onClick={this.disable}>Disable</SecondaryButton>
+            :
+            <SecondaryButton onClick={this.enable}>Enable</SecondaryButton>
+          } 
+          {this.state.monitor.isPublic ?
+            <SecondaryButton onClick={this.makePrivate}>Make private</SecondaryButton>
+            :
+            <SecondaryButton onClick={this.makePublic}>Make public</SecondaryButton>
+          } 
           </ButtonBox>}
           {!this.state.monitor.id && <ButtonBox>
             <PrimaryButton onClick={this.saveMonitor}>Create</PrimaryButton>
