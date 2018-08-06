@@ -3,7 +3,7 @@ const next = require('next')
 
 const Auth = require('auth-14')
 
-const auth = new Auth14({
+const auth = new Auth({
   appId: process.env.AUTH14_APP_ID,
   appSecret: process.env.AUTH14_APP_SECRET,
   providerUrl: 'https://auth14.portchain.com',
