@@ -4,7 +4,6 @@
   "description": "Web app to monitor other web apps, alert your team and provide status pages for your users",
   "main": "web-server/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf .next",
     "dev": "node web-server/index.js",
     "build": "next build",
