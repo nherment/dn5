@@ -7,7 +7,7 @@
     "clean": "rm -rf .next",
     "dev": "node web-server/index.js",
     "build": "next build",
-    "start": "NODE_ENV=production npm run web-server"
+    "start": "NODE_ENV=production node web-server/index.js"
   },
   "repository": {
     "type": "git",
