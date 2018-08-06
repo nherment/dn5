@@ -1,0 +1,32 @@
+version: 2
+jobs:
+  deploy:
+    docker:
+      - image: circleci/node:10.1.0
+    steps:
+      - checkout
+      - run:
+          name: install-npm
+          command: npm install
+      - run:
+          name: Transpile front-end
+          command: npm run build
+      - run:
+          name: Configure git
+          command: |
+            git config --global user.email circleci@circleci && \
+            git config --global user.name CircleCI
+      - run: git add .next --force
+      - run: git commit -m "circleci deploy. buid=$CIRCLE_BUILD_NUM, sha1=$CIRCLE_SHA1"
+      - run:
+          name: Deploy Master to Heroku
+          command: git push https://heroku:$HEROKU_API_KEY@git.heroku.com/portchain-dn5-monitor.git HEAD:master --force
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - deploy:
+          filters:
+            branches:
+              only: master
