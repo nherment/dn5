@@ -4,11 +4,10 @@
   "description": "Web app to monitor other web apps, alert your team and provide status pages for your users",
   "main": "web-server/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf .next",
     "dev": "node web-server/index.js",
     "build": "next build",
-    "start": "NODE_ENV=production npm run web-server"
+    "start": "NODE_ENV=production node web-server/index.js"
   },
   "repository": {
     "type": "git",
@@ -41,6 +40,7 @@
     "nodemailer": "4.6.7",
     "nodemailer-mailgun-transport": "1.4.0",
     "pg": "7.4.3",
+    "pg-connection-string": "2.0.0",
     "pg-js": "0.6.0",
     "postgrator": "3.6.0",
     "react": "16.4.2",

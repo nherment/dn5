@@ -1,6 +1,16 @@
 const express = require('express')
 const next = require('next')
 
+const Auth = require('auth-14')
+
+const auth = new Auth({
+  appId: process.env.AUTH14_APP_ID,
+  appSecret: process.env.AUTH14_APP_SECRET,
+  providerUrl: 'https://auth14.portchain.com',
+  basePath: '/auth'
+})
+
+
 const port = parseInt(process.env.PORT, 10) || 3000
 const conf = require('../common/conf')
 
@@ -23,8 +33,9 @@ app.prepare()
     console.log('starting up server')
     const server = express()
 
+    server.use(auth.serveLogin())
     server.use(bodyParser.json())
-    server.use('/api', api())
+    server.use('/api', api(auth))
     
     server.get('*', (req, res) => {
       return handle(req, res)
