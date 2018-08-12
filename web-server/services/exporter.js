@@ -48,6 +48,13 @@ module.exports = {
           size: 20
         }
       })
+      const sectionTitleStyle = wb.createStyle({
+        font: {
+          bold: true,
+          color: '#124D6A',
+          size: 16
+        }
+      })
 
       const mainTextStyle = wb.createStyle({
         font: {
@@ -147,6 +154,7 @@ module.exports = {
       ws.column(13).setWidth(5)
       
       ws.row(3).setHeight(24)
+      ws.row(6).setHeight(24)
 
       let vCursor = 3
       ws.cell(vCursor, 3, vCursor, 11, true).string(monitor.name || '').style(monitoringReportNameStyle)
@@ -156,6 +164,8 @@ module.exports = {
       ws.cell(vCursor, 3, vCursor, 11, true).string(`Covering incidents from ${informalDate(monitor.minDate)} to ${informalDate(monitor.maxDate)}`)
 
       vCursor +=2
+      ws.cell(vCursor, 3, vCursor, 11, true).string(`Incidents`).style(sectionTitleStyle)
+      vCursor ++
 
       if(monitor.incidents && monitor.incidents.length > 0) {
         monitor.incidents.forEach((incident) => {
@@ -201,6 +211,9 @@ module.exports = {
           ws.cell(vCursor, 11).style(incidentBorderRight)
           vCursor++
         })
+      } else {
+        ws.cell(vCursor, 3, vCursor, 11, true).string(`No incident reported during that period`).style(labelStyle)
+        vCursor ++
       }
 
       //------------------------//
