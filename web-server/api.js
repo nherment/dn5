@@ -33,11 +33,11 @@ module.exports = (auth) => {
     })
   })
 
-  app.use(auth.requireAuthentication())
-
   app.get('/monitor/:monitorId', (req, res) => {
     monitors.fetchMonitorDetailedStatus(req.params.monitorId, res.handleCallback)
   })
+
+  app.use(auth.requireAuthentication())
 
   app.post('/monitor', (req, res) => {
     const monitor = req.body;
