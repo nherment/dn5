@@ -213,6 +213,10 @@ class StatusOverview extends React.Component {
     )
   }
 
+  downloadReport = () => {
+    window.open(`/api/excel/${this.props.monitor.id}`, '_blank');
+  }
+
   renderIncident = (incident) => {
     return (
       <Incident key={incident.id} status={incident.closedDate ? 'operational' : calculateIncidentStatusLevel(incident).name}>
@@ -237,6 +241,7 @@ class StatusOverview extends React.Component {
     return (
       <Container>
         <ActionsContainer>
+          <ButtonLink title="Export as Excel" onClick={this.downloadReport}>export</ButtonLink>
           <ButtonLink onClick={this.props.onClose}>close</ButtonLink>
         </ActionsContainer>
         <MonitorOverview>

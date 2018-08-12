@@ -2,7 +2,7 @@ const path = require('path')
 
 const parse =require('pg-connection-string');
 
-let pgConnStringConf;
+let pgConnStringConf = {};
 if (process.env.DATABASE_URL) {
   pgConnStringConf = parse(process.env.DATABASE_URL);
 }

@@ -47,7 +47,6 @@ function updateMonitor(monitor, callback) {
 }
 
 function deleteMonitor(monitor, callback) {
-
   logger.info('deleteMonitor', monitor)
   db.deleteMonitor(monitor.id, (err) => {
     if(err) {
@@ -58,7 +57,6 @@ function deleteMonitor(monitor, callback) {
 }
 
 function fetchMonitorsStatuses(fetchPrivateMonitors, callback) {
-
   db.fetchMonitorsStatuses(fetchPrivateMonitors, (err, statuses) => {
     if(err) {
       logger.error(err)
@@ -76,11 +74,21 @@ function fetchMonitorDetailedStatus(monitorId, callback) {
   })
 }
 
+function fetchMonitorHistory(monitorId, callback) {
+  db.fetchMonitorHistory(monitorId, (err, results) => {
+    if(err) {
+      logger.error(err)
+    }
+    callback(err, results ? results[0] : null)
+  })
+}
+
 module.exports = {
   searchMonitors,
   createMonitor,
   updateMonitor,
   deleteMonitor,
   fetchMonitorsStatuses,
-  fetchMonitorDetailedStatus
+  fetchMonitorDetailedStatus,
+  fetchMonitorHistory
 }

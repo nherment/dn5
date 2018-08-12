@@ -30,7 +30,6 @@ const bodyParser = require('body-parser')
 app.prepare()
   .then(migration)
   .then(() => {
-    console.log('starting up server')
     const server = express()
 
     server.use(auth.serveLogin())

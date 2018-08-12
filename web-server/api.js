@@ -1,10 +1,12 @@
 
 
-
+const stream = require('stream')
+const moment = require('moment')
 
 module.exports = (auth) => {
   const app = require('express').Router()
   const monitors = require('./services/monitors')
+  const exporter = require('./services/exporter')
 
   app.use(require('./util/error-response.js'))
   app.use(require('./util/callback-response.js'))
@@ -15,6 +17,20 @@ module.exports = (auth) => {
 
   app.get('/monitors-statuses', (req, res) => {
     monitors.fetchMonitorsStatuses(/*incl. private*/!!req.user, res.handleCallback)
+  })
+
+  app.get('/excel/:monitorId', function(req, res) {
+    exporter.exportMonitorToExcel(req.user, req.params.monitorId, (err, data) => {
+      if(err) {
+        res.error(err)
+      } else {
+        res.set('Content-disposition', `attachment; filename="monitoring_report_${data.monitor.name}_${moment(data.monitor.maxDate).format('YYYY-MM-DD_HHMM')}.xlsx"`)
+        res.set('Content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        var readStream = new stream.PassThrough()
+        readStream.end(data.xlsx)
+        readStream.pipe(res)
+      }
+    })
   })
 
   app.use(auth.requireAuthentication())
